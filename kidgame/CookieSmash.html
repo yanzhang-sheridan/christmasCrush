@@ -1,0 +1,219 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>ZIM Tile - responsive layout for canvas with JavaScript</title>
+
+<!-- Welcome to ZIM at http://zimjs.com - Code Interactive Media Pizzazz!             -->
+<!-- ZIM runs on the HTML Canvas powered by JavaScript and CreateJS http://createjs.com -->
+<!-- Founded by Inventor Dan Zen - http://danzen.com - Canadian New Media Award Winner     -->
+<!-- ZIM is free to use. You can donate to help improve ZIM at http://zimjs.com/donate     -->
+
+<script src="https://d309knd7es5f10.cloudfront.net/createjs_1.1_min.js"></script>
+<script src="https://d309knd7es5f10.cloudfront.net/zim_10.4.0_doc.js"></script>
+<!-- use zimjs.com/distill for minified individual functions! -->
+
+<script>
+
+// SCALING OPTIONS
+// scaling can have values as follows with full being the default
+// "fit"    sets canvas and stage to dimensions and scales to fit inside window size
+// "outside"    sets canvas and stage to dimensions and scales to fit outside window size
+// "full"    sets stage to window size with no scaling
+// "tagID"    add canvas to HTML tag of ID - set to dimensions if provided - no scaling
+
+// as of ZIM 5.5.0 you do not need to put zim before ZIM functions and classes
+var frame = new Frame({color:blue});
+frame.on("ready", function() {
+    zog("ready from ZIM Frame"); // logs in console (F12 - choose console)
+
+    var stage = frame.stage;
+    var stageW = frame.width;
+    var stageH = frame.height;
+
+	// ZIM TILE
+	// Tile() has been around for a while but primarily in a repeating pattern sense
+	// Now, we have added layout functionality similar to an HTML table with some advantages
+	// Tile is also similar to ZIM Layout - but Tile does not scale the content
+	// ZIM Layout scales content to fit various regions and so is a more complex system
+
+	// Tile will not scale the content - but you can scale the whole Tile
+	// The new width and height parameter and resize(width, height) allow for spreading of the items
+	// Squeeze will compress the rows or columns when the content continues to be squeezed
+	// or when the width or height are not provided, it squeezes the items together
+	// The align and valign align items in their place
+	// This example does not set a height or squeeze in the height but you can comment back in these to try
+
+    // create assets
+	// these could be anything - components, pictures, Window objects, etc.
+
+    var a = new Rectangle(200, 100, green, white, 2);
+    var b = new Circle(50, green, white, 2);
+    var c = new Rectangle(300, 200, green, white, 2);
+    var d = new Rectangle(100, 150, green, white, 2);
+
+    var e = new Rectangle(150, 200, green, white, 2);
+    var f = new Rectangle(250, 200, green, white, 2);
+    var g = new Rectangle(350, 150, green, white, 2);
+    var h = new Rectangle(150, 200, green, white, 2);
+
+    // make Tile - note, assets will be cloned unless set clone:false in Tile
+    var tile = new Tile({
+        obj:series([a,b,c,d,e,f,g,h]),
+        width:stageW*.9,
+        // height:stageH*.8,
+        cols:4,
+        rows:2,
+        spacingH:16,
+        spacingV:16,
+        squeezeH:false,
+        squeezeV:false, // try setting to true - did not bother with example interface
+        align:"center",
+        valign:"center",
+        // clone:false
+        // colSize:350, // ignored if width set
+    });
+
+    // can resize and remake Tile with new properties
+    // here we add a Dial in place of the circle
+    timeout(1000, function() {
+        var dial = new Dial({
+            backgroundColor:green,
+            indicatorColor:white,
+            min:0,
+            max:7,
+            limit:false
+        });
+        var lookup = [1,2,3,7,6,5,4,0]; // order for color change
+        dial.on("change", function() {
+            tile.loop(function (item) {
+                if (item.type == "Rectangle") item.color = green;
+            });
+            var selected = tile.items[lookup[dial.currentValue]];
+            if (selected.type == "Rectangle") selected.color = yellow;
+            stage.update();
+        });
+        tile.items[1] = dial; // change the second item to a dial
+
+        // could add items, etc.
+        // tile.items.push(a.clone());
+        // could change number of columns or rows
+        // tile.cols = 5;
+
+        tile.remake().center().mov(0, stageH*.05).bot();
+        stage.update();
+    });
+
+    // resize the Tile if the width changes (can do same for height)
+    frame.on("resize", function(){
+        stageW = stage.width;
+        stageH = stage.height;
+        // tile.resize(stageW*.9); // usually just this - but this example has more options
+        resizeTile();
+        nav.resize(stageW*.9).center().pos({y:10,bottom:true}); // using bottom to anchor
+        bar.pos(0,0,null,true).siz(stageW, bar.height); // using bottom to anchor
+		corner.pos(0,-10,true); // using right to anchor
+    });
+
+    // normally, you would just use tile.resize() or tile.resize(stageW*.9)
+    // but here there are a bunch of places we resize and for different width settings, etc.
+    function resizeTile() {
+        tile.resize(spread.checked?stageW*.9:0).center().mov(0, stageH*.05);
+        stage.update();
+    }
+
+    // INTERFACE
+    STYLE = {
+        type:{
+            CheckBox:{scale:.3, alpha:.7},
+            RadioButtons:{
+                scale:.3,
+                alpha:.7,
+                vertical:false,
+                spacing:20
+            }
+        }
+    };
+
+    var bar = new Rectangle(stageW, 40, black).alp(.2);
+
+    var spread = new CheckBox({label:"spread width", startChecked:true});
+    var squeeze = new CheckBox({label:"squeeze width"});
+    var buttonsH = new RadioButtons({buttons:["left", "center", "right"]});
+    var buttonsV = new RadioButtons({buttons:["top", "center", "bottom"]});
+    buttonsH.selectedIndex = buttonsV.selectedIndex = 1;
+
+    var nav = new Tile({
+        obj:series([spread, squeeze, buttonsH, buttonsV]),
+        width:stageW*.9,
+        cols:4,
+        rows:1,
+        spacingH:30,
+        clone:false // otherwise will lose events
+    });
+
+    var pane = new Pane({
+        width:680,
+        height:180,
+        label:"change window size to see effect",
+        backgroundColor:dark,
+        color:light,
+        corner:0
+    });
+
+    var paneCheck = false;
+    spread.on("change", function () {
+        if (!paneCheck) pane.show();
+        paneCheck = true;
+        resizeTile(); // this has a check for the spread.checked in it
+    });
+
+    squeeze.on("change", function () {
+        if (!paneCheck) pane.show();
+        paneCheck = true;
+        tile.squeezeH = squeeze.checked;
+        resizeTile();
+    });
+
+    buttonsH.on("change", function () {
+        tile.align = buttonsH.text;
+        resizeTile();
+    });
+
+    buttonsV.on("change", function () {
+        tile.valign = buttonsV.text;
+        resizeTile();
+    });
+
+    new Label("ZIM Tile() with spread, squeeze and align options").pos(30,30,stage).alp(.5);
+
+	var corner = new Button({
+		width:80,
+		height:80,
+		label:new Label({text:"DOCS", color:frame.white, size:20}),
+		backing:new Triangle(100,130,-1,frame.grey).rot(-90).reg(70, 90),
+		rollBacking:new Triangle(100,130,-1,frame.dark).rot(-90).reg(70, 90),
+		corner:40,
+		shadowColor:-1
+	})
+		.expand(-10,-15);
+	corner.on("click", function(){zgo("http://zimjs.com/docs.html?item=tile")});
+
+    stage.update(); // this is needed to show any changes
+
+}); // end of ready
+
+</script>
+
+<meta name="viewport" content="width=device-width, user-scalable=no" />
+
+</head>
+
+<body>
+<!-- canvas with id="myCanvas" is made by zim Frame -->
+<script>
+var r=Math.round(Math.random()*1000000);
+document.write('<img src=/cgi-bin/traffic_plus?company=danzen&page=zimTile&r='+r+' width=1 height=1>');
+</script>
+</body>
+</html>

@@ -1,0 +1,317 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>ZIM - Code Creativity</title>
+
+<!-- Welcome to ZIM at https://zimjs.com - Code Creativity!                              -->
+<!-- ZIM runs on the HTML Canvas powered by JavaScript and CreateJS https://createjs.com -->
+<!-- Founded by Inventor Dan Zen - http://danzen.com - Canadian New Media Award Winner   -->
+<!-- ZIM is free to use. You can donate to help improve ZIM at https://zimjs.com/donate  -->
+
+<script src="https://zimjs.org/cdn/1.2.3/createjs_min.js"></script>
+<script src="https://zimjs.org/cdn/10.7.0/zim.js"></script>
+<script src="https://zimjs.org/cdn/pizzazz_02.js"></script>
+<script src="https://zimjs.org/cdn/game_2.2.js"></script>
+<!-- use zimjs.com/distill for minified individual functions! -->
+
+<script>
+
+// SCALING OPTIONS
+// scaling can have values as follows with full being the default
+// "fit"	sets canvas and stage to dimensions and scales to fit inside window size
+// "outside"	sets canvas and stage to dimensions and scales to fit outside window size
+// "full"	sets stage to window size with no scaling
+// "tagID"	add canvas to HTML tag of ID - set to dimensions if provided - no scaling
+
+const scaling = "fit"; // this will resize to fit inside the screen dimensions
+const width = 1024;
+const height = 768;
+const color = light; // ZIM colors like green, blue, pink, faint, clear, etc.
+const outerColor = dark; // any HTML colors like "violet", "#333", etc. are fine to use
+const assets = ["background2.png", "dog.png", "grinch.png", "grinch2.png", "present2.png", "preview.png",
+"punch.png","kick.mp3","snare.mp3","crash.mp3", "santababy.mp3"];
+const path = "assets/";
+
+const frame = new Frame(scaling, width, height, color, outerColor, assets, path);
+frame.on("ready", () => { // ES6 Arrow Function - like function(){}
+    zog("ready from ZIM Frame"); // logs in console (F12 - choose console)
+
+    const stage = frame.stage;
+    let stageW = frame.width;
+    let stageH = frame.height;
+
+    // see https://zimjs.com/learn.html for video and code tutorials
+    // see https://zimjs.com/docs.html for documentation
+    // see https://zimjs.com/bits.html for 64 Interactive Media techniques
+
+    // put your code here (you can delete this sample code)
+
+
+    level2();
+    function level2(){
+
+        frame.asset("background2.png").alp(1).sca({width:1024, height:768}).center();
+        var santababy = asset("santababy.mp3");
+
+
+
+
+        var kick = asset("kick.mp3");
+        var snare = asset("snare.mp3");
+        var crash = asset("crash.mp3");
+
+
+        var present = new Container(100,100).centerReg();
+        var rec = new Rectangle(100,100).centerReg(present);
+        frame.asset("present2.png").alp(1).sca(.8).centerReg().addTo(present);
+
+
+
+        var grinch = frame.asset("grinch.png").sca(.3).centerReg();
+        var grinch2 = frame.asset("grinch2.png").sca(.5).rot(60).centerReg();
+        var dog = frame.asset("dog.png").sca(.15).rot(160).centerReg();
+
+        var grinchSeries = series(grinch,null,grinch,grinch,null,grinch,null,grinch,null,grinch,null,null,grinch,null,grinch);
+        var grinch2Series = series(grinch2,null,null,grinch2,null,grinch2,grinch2,null,grinch2,null,grinch2,null,grinch2,grinch2,null,grinch2);
+        var dogSeries = series(dog,null,dog,null,null,dog,null,null,dog,null,dog,null,dog,dog,null,null,dog,dog,null,null,dog);
+
+        var grinchparts = new Tile(grinchSeries, 15, 1, 60)
+       .center()
+       .loc(stageW,stageH)
+       .rot(30);
+
+       var grinch2parts = new Tile(grinch2Series, 16, 1, 30)
+        .center()
+        .loc(420,0)
+        .rot(-90);
+
+        var dogparts = new Tile(dogSeries, 21, 1, 30)
+         .center()
+         .loc(0,850)
+         .rot(150);
+
+//          grinchparts.wiggle({
+//           property:"y",
+//           baseAmount:grinchparts.y,
+//           minAmount:2,
+//           maxAmount:10
+//         });
+// ​
+//     grinch2parts.wiggle({
+//          property:"y",
+//          baseAmount:grinch2parts.y,
+//          minAmount:2,
+//          maxAmount:10
+//        });
+// ​
+//    dogparts.wiggle({
+//         property:"y",
+//         baseAmount:dogparts.y,
+//         minAmount:2,
+//         maxAmount:10
+//       });
+
+
+
+
+         var hitbox1 = new Sprite({image:asset("punch.png"), cols:8, rows:1}).centerReg().sca(.5).run({loop:true,time:500}).loc(780,600);
+         var hitbox2 = new Sprite({image:asset("punch.png"), cols:8, rows:1}).centerReg().sca(.5).run({loop:true,time:500}).loc(230,600);
+         var hitbox3 = new Sprite({image:asset("punch.png"), cols:8, rows:1}).centerReg().sca(.5).run({loop:true,time:500}).loc(stageW/2,100);
+
+        //  var path = new Squiggle({
+        //      points:[[149.3,-444.8,0,0,-3,-32.5,3,32.5],[144.1,-249.7,0,0,2.6,-20.6,-2.6,20.6],[163.5,-57.9,0,0,-3,-31.7,3,31.7],[150.7,6.3,0,0,10,-31.8,-10,31.8],[164.6,55.2,0,0,-3,-23,3,23]],
+        //      thickness:70,
+        //      color:dark,
+        //      interactive:false}).center().alp(.1);
+        //
+        //
+        // var path2 = path.clone().rot(120).center().alp(.1);
+        // var path3 = path.clone().rot(240).center().alp(.1);
+        //
+        // grinchparts.rot(-90).animate({
+        //         props:{path:path, orient:false},
+        //         ease:"linear",
+        //         time:15000,
+        //         loop:true
+        //     });
+        var endPane = new Pane ({
+            width:600,
+                backgroundColor:"white",
+                close:true
+ });
+
+ var nextlevelButton = new Button({
+        label:"Next Level",
+        width:350,
+        height:110,
+        font:"roboto",
+        backgroundColor:"#95201E",
+        rollBackgroundColor:"#F4EB1F"
+    })
+        .sca(.5)
+        .center(endPane)
+        .tap(function () {
+            zgo("lv1.html");
+            stage.update();
+        });
+
+
+
+
+ var againPane = new Pane ({
+                  width:600,
+                  backgroundColor:"white",
+                  close:true,
+    });
+
+    var againlevelButton = new Button({
+           label:"Try again!",
+           width:350,
+           height:110,
+           font:"roboto",
+           backgroundColor:"#95201E",
+           rollBackgroundColor:"#F4EB1F"
+       })
+           .sca(.5)
+           .center()
+           .mov(0,300)
+           .tap(function () {
+                   zgo("level2.html");
+                   stage.update();
+                   });
+
+
+
+        var scoreLabel = new Label({
+                      text:0,
+                      color:grey,
+                      size:40,
+                      align:"right",
+                  }).center().pos(80,30,true);
+
+        var count = 0;
+
+
+        Ticker.add(function(){
+            grinchparts.loop(function(grinch){
+                 if(grinch.type=="Bitmap" && present.hitTestBounds(grinch)){
+                     grinch.removeFrom();
+                     count -=1000;
+                     scoreLabel.text = count
+                 }
+
+            }, true);
+        });
+
+        Ticker.add(function(){
+            grinch2parts.loop(function(grinch2){
+                 if(grinch2.type=="Bitmap" && present.hitTestBounds(grinch2)){
+                     grinch2.removeFrom();
+                     count -=1000;
+                     scoreLabel.text = count
+                 }
+
+            }, true);
+        });
+
+        Ticker.add(function(){
+            dogparts.loop(function(dog){
+                 if(dog.type=="Bitmap" && present.hitTestBounds(dog)){
+                     dog.removeFrom();
+                     count -=1000;
+                     scoreLabel.text = count
+                 }
+
+            }, true);
+        });
+
+
+
+
+            Ticker.add(function(){
+            grinchparts.x-= 1.2;
+          grinchparts.y-= 0.8;
+          grinch2parts.y+= 0.8;
+          dogparts.x+= 1.2;
+          dogparts.y-= 0.7;
+          });
+
+
+
+
+       frame.on("keydown", function(e){
+           if (e.keyCode == 37){ //key left
+               crash.play();
+              grinchparts.loop(function(grinch){
+                   if(grinch.type=="Bitmap" && hitbox1.hitTestBounds(grinch)){
+                       grinch.removeFrom();
+                       count +=1000;
+                       scoreLabel.text = count
+                       zog(count);
+                       if(count >= 20000){
+                           endPane.show();
+                       }
+                   };
+               },true);
+           }
+       });
+
+       frame.on("keydown", function(e){
+          if (e.keyCode == 40){ //key down
+              kick.play();
+              dogparts.loop(function(dog){
+                  if(dog.type=="Bitmap" && hitbox2.hitTestBounds(dog)){
+                      dog.removeFrom();
+                      count +=1000;
+                      scoreLabel.text = count
+                      zog(count);
+                      if(count >= 20000){
+                          endPane.show();
+                      }
+                  };
+              },true);
+          }
+      });
+
+      frame.on("keydown", function(e){
+          if (e.keyCode == 39){ //key right
+              snare.play();
+             grinch2parts.loop(function(grinch2){
+                  if(grinch2.type=="Bitmap" && hitbox3.hitTestBounds(grinch2)){
+                      grinch2.removeFrom();
+                      count +=1000;
+                      scoreLabel.text = count
+                      zog(count);
+                      if(count >= 20000){
+                          endPane.show();
+                      }
+                  };
+              },true);
+          }
+      });
+// ​
+
+
+
+
+
+
+        stage.update();
+
+    }// end level2
+
+    stage.update(); // this is needed to show any changes
+
+}); // end of ready
+
+</script>
+
+<meta name="viewport" content="width=device-width, user-scalable=no" />
+
+</head>
+
+<body>
+<!-- canvas with id="myCanvas" is made by zim Frame -->
+</body>
+</html>

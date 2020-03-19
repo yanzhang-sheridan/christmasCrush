@@ -1,0 +1,395 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Coin Crash</title>
+
+
+
+<script src="https://zimjs.org/cdn/1.2.1/createjs_min.js"></script>
+<script src="https://zimjs.org/cdn/10.6.0/zim.js"></script>
+<script src="https://zimjs.org/cdn/pizzazz_02.js"></script>
+<script src="https://zimjs.org/cdn/game_2.2.js"></script>
+
+<!-- use zimjs.com/distill for minified individual functions! -->
+
+<script>
+
+
+const scaling = "fit"; // this will resize to fit inside the screen dimensions
+const width = 1024;
+const height = 768;
+const color = light; // ZIM colors like green, blue, pink, faint, clear, etc.
+const outerColor = dark; // any HTML colors like "violet", "#333", etc. are fine to use
+
+// var assets = ["cupid.png"];
+// var path = "assets/";
+//
+// var frame = new zim.Frame(scaling, width, height, color, outerColor, assets, path);
+const frame = new Frame(scaling, width, height, color, outerColor);
+
+
+
+frame.on("ready", () => { // ES6 Arrow Function - like function(){}
+    zog("ready from tile"); // logs in console (F12 - choose console)
+
+    var stage = frame.stage;
+    var stageW = frame.width;
+    var stageH = frame.height;
+
+    pizzazz.listIcons();
+
+    var targetHolder = new Container().centerReg();
+
+    var img1 = new Rectangle(20, 20, green, white, 2);
+    var img2 = new Circle(10, blue, white, 2);
+    var img3 = new Triangle(20,20,20, orange, white, 2);
+
+    // var hearts = new Container();
+     var img4 = pizzazz.makeIcon("heart", red, 3).sca(.2);
+
+
+    // make Tile - note, assets will be cloned unless set clone:false in Tile
+    var tile = new Tile({
+        obj:[img1,img2,img3,img4],
+        width:stageW*.8,
+        height:stageH*.8,
+        cols:9,
+        rows:9,
+        spacing:10,
+        spacingV:10,
+        squeezeH:false,
+        squeezeV:false, // try setting to true - did not bother with example interface
+        align:"center",
+        valign:"center",
+        // clone:false
+        // colSize:350, // ignored if width set
+    }).addTo().center();
+
+    var timer = new Timer({
+         time:60,
+         borderColor:dark,
+         isometric:"left" // isometric for left side of board
+    }).loc(stageW,stageH);
+
+    new Button({
+        corner:[50,0,50,0],
+        backgroundColor:pink,
+        rollBackgroundColor:blue,
+        label:"RESET",
+        wait:"DONE",
+        waitTime:3000,
+        waitBackgroundColor:yellow,
+    })
+        .sca(.5)
+        .pos(10,10,true,true)
+        .tap(function () {
+            inter.clear();
+            gameStart();
+            // inter.count = 0;
+            // inter.pause(false, false, true); // inter is our interval object that shoots arrows
+            // // hearts.resetTween();
+            // hearts.percentComplete = 0;
+            //score.selectedIndex = -1;
+            // redHeart.alp(0);
+            // stage.update();
+        });
+
+    // var score = new Scorer().pos(30,30,RIGHT,TOP);
+
+    var score = new Label({
+        text:"scores",
+        size:20,
+        font:"impact",
+        color:white,
+        backgroundColor:red,
+        shiftVertical:4
+    }).pos(5,5,RIGHT,TOP).ske(10);
+
+    // .animate({
+    // //     props:{alpha:.4},
+    // //     wait:2000
+    // });
+
+    //
+    // var score = new Indicator({
+    //     width:180,
+    //     height:30,
+    //     // num:shootTimes.length,
+    //     foregroundColor:purple,
+    //     fill:true
+    // }).pos(10,40,RIGHT,TOP);
+    // score.selectedIndex = -1;
+
+    var title = new Label({
+        text:"Smash me!",
+        size:20,
+        font:"impact",
+        color:white,
+        backgroundColor:red,
+        shiftVertical:4
+    }).pos(5,5).ske(10).animate({
+        props:{alpha:.4},
+        wait:2000
+    });
+
+ // define position variables
+    var divy = new Array();
+    var sum = 0;
+    var lastx = 0,lasty = 0,l_rnum = 0,o_dnum = 0,clickedIcon = "",
+    var left_x = 0,left_y = 0,up_x = 0,up_y = 0;
+    var arrIcon = new Array(img1,img2,img3,img4);//icons array
+    var arriconIndex = new Array();//icons index array
+    var arriconMark = new Array(); //icon marked array
+    var arriconClick = new Array();//icon cliceked Array
+    //
+    // var divy = new Array();
+    // 35 var sum = 0,lastx = 0,lasty = 0,l_rnum = 0,o_dnum = 0,sum = 0,clickedimg = "",
+    // 36 left_x = 0,left_y = 0,up_x = 0,up_y = 0;
+    // 37 var img_lib = new Array("狐狸.png", "猫头鹰.png", "河马.png", "小鸡.png", "熊.png");//图片库
+    // 38 var imgdata = new Array();//存储动物对应的数字
+    // 39 var vis = new Array(); //标记数组
+    // 40 var _clickedimg = new Array();//用来存点击的两张图片
+
+
+
+
+    
+
+    function gameStart(){
+        timer.start();
+        frame.on("keydown", function (e) {
+        init();
+
+            // checking if the shape are same
+
+
+
+            //
+
+
+
+            //
+            //
+            //
+            //
+            //
+            // // zog(e.keyCode);
+            // if (e.keyCode == 82) { // R
+            //     // zog("yay!")
+            //     path.recordPoints();
+            // } else if (e.keyCode == 80) { // P
+            //     zog("recording");
+            //     // var locations = [];
+            //     // bows.loop(function (bow) {
+            //     //     locations.push( "[" + bow.x +","+ bow.y +"]" );
+            //     // });
+            //     // zog("[" + locations.toString() + "]")
+            //     var locX = [];
+            //     var locY = [];
+            //     bows.loop(function (bow) {
+            //         locX.push( Math.round(bow.x) );
+            //         locY.push( Math.round(bow.y) );
+            //     });
+            //     zog(locX);
+            //     zog(locY);
+            }
+        });
+
+     //intial all the holders
+        function init() {
+
+            for (var i = 0; i < 7; i++) {
+                 imgdata[i] = new Array();
+               for (var j = 0; j < 7; j++) {
+                   imgdata[i][j] ="";
+                 }
+             }
+             for (var i = 0; i < 7; i++) {
+                 vis[i] = new Array();
+                 for (var j = 0; j < 7; j++) {
+                     vis[i][j] = 0;
+                 }
+             }
+             var x = document.getElementById("box");
+             for (var i = 0; i < 7; i++) {
+                 for (var j = 0; j < 7; j++) {
+                 imgdata[i][j] = parseInt(Math.random() * 10) % 5;//随机数，imgdata数组存的是数字
+                     x.innerHTML += "<div οnclick=exchange(this," + i + "," + j + ")><img src=" + img_lib[imgdata[i][j]]+ "></div>";
+                 }
+             }
+             //由于开始就是随机生成整盘动物，必须全盘扫描是否有满足可以消除的动物，并消除
+             checkSameIcon();
+         }
+
+
+// check if there is anysame icon , then delete or add
+        function checkSameIcon() {
+             var c = 0,
+             s = 1;
+             while (s != 0) {  //s!=0表示上一个整盘动物与当前的整盘动物一样，即没有动物可以消除,s由removeimg()返回
+               for (var i = 0; i < 9; i++) {
+                    for (var j = 0; j < 9 ; j++) {
+                       scan(i, j);
+                    }
+                }
+             s = deleteIcon();
+             addIcon();
+            }
+        }
+
+
+        //扫描，以当前的点击的这个图片为中心，向左向右，向上向下
+        120 function scan(x, y) {
+        121     clickedimg = img_lib[imgdata[x][y]];
+        122     var scan_lr = 1,scan_ud = 1;
+        123     left_x = x;
+        124     left_y = y;
+        125     up_x = x;
+        126     up_y = y;
+        127     //如果该动物的左边与它自己相同，并且对应的标记数组大于0，就不继续扫描（因为代表已经扫过了一这行）
+        128     if (y != 0 && img_lib[imgdata[x][y-1]] == clickedimg && vis[x][y - 1] > 0) {
+        129         scan_lr = 0;
+        130     }
+        131     //如果该动物的上边与它自己相同，并且对应的标记数组大于0，就不继续扫描（因为代表已经扫过了一这列）
+        132     if (x != 0 && img_lib[imgdata[x-1][y]] == clickedimg && vis[x - 1][y] > 0) {
+        133         scan_od = 0;
+        134     }
+        135     if (scan_lr == 1) {
+        136         for (var a = 0;; a++) {
+        137             if (y - a < 0 || img_lib[imgdata[x][y-a]] != clickedimg) {
+        138                 break;
+        139             } else if (img_lib[imgdata[x][y-a]] == clickedimg) { //向左扫描
+        140                 vis[x][y - a]++;
+        141                 l_rnum++;
+        142                 if (a != 0) left_y--;//记下与当前动物相同的最左边的动物，横向重置标记数组的时候是用循环从最左边开始
+        143              }
+        144         }
+        145         for (var a = 1;; a++) {
+        146             if (y + a > 6 || img_lib[imgdata[x][y+a]] != clickedimg) break;
+        147             else if (img_lib[imgdata[x][y+a]] == clickedimg) { //向右扫描
+        148                 vis[x][y + a]++;
+        149                 l_rnum++;
+        150             }
+        151         }
+        152
+        153         //向左与向右的相同动物加起来不超过三个，即横向不能消除，
+        154         if (l_rnum < 3) {
+        155             for (var i = 0; i < l_rnum; i++) {
+        156                 vis[left_x][left_y + i] = vis[left_x][left_y + i] - 1;
+        157             }
+        158                  l_rnum = 0;
+        159         }
+        160     }
+        161     if (scan_ud == 1) {
+        162         for (var b = 0;; b++) {
+        163             if (x - b < 0 || img_lib[imgdata[x-b][y]] != clickedimg) {
+        164                 break;
+        165             }
+        166             else if (img_lib[imgdata[x-b][y]] == clickedimg) { //向上扫描
+        167                 vis[x - b][y]++;
+        168                 o_dnum++;
+        169                 if (b != 0) up_x--;//记下与当前动物相同的最上边的动物，纵向重置标记数组的时候是用循环从最上边开始
+        170             }
+        171
+        172         }
+        173         for (var b = 1;; b++) {
+        174             if (x + b > 6 || img_lib[imgdata[x+b][y]] != clickedimg) break;
+        175             else if (img_lib[imgdata[x+b][y]] == clickedimg) { //向下扫描
+        176                 vis[x + b][y]++;
+        177                 o_dnum++;
+        178             }
+        179         }
+        180         //向下与向上的相同动物加起来不超过三个，即纵向不能消除，就要把标记数组减一，而不是设置为0，因为不能保证横向不能消除，为了保存那个共享的动物。
+        181         if (o_dnum < 3) {
+        182             for (var j = 0; j < o_dnum; j++) {
+        183                 vis[up_x + j][up_y] = vis[up_x + j][up_y] - 1;
+        184             }
+        185             o_dnum = 0;
+        186         }
+        187     }
+        188     if (l_rnum >= 3 || o_dnum >= 3) {   //有一行或者有一列满足消除，即相同的动物大于等于3，返回1，表示可以交换
+        189         l_rnum = 0;
+        190         o_dnum = 0;
+        191         return 1;
+        192     } else {
+        193         l_rnum = 0;
+        194         o_dnum = 0;
+        195         return 0;
+        196     }
+        197 }
+        198
+
+
+
+         //add new icons
+         function addIcon() {
+           for (var i = 0; i < 7; i++) {
+                 for (var j = 0; j < 7; j++) {
+                      if (imgdata[i][j] == 9) {
+                        imgdata[i][j] = parseInt(Math.random() * 10) % 5;  //随机添加
+                        divy = document.getElementsByTagName("div");
+                       _divnum = i * 7 + 1 + j;
+                        divy[_divnum].innerHTML = '<img src="' +img_lib[imgdata[i][j]] + '">';
+                      }
+                  }
+            }
+         }
+
+          //delete same icons
+         function removeimg() {
+              var flag = 0;
+              for (var i = 0; i < 7; i++) {
+                  for (var j = 0; j < 7; j++) {
+                    if (vis[i][j] > 0) {         //对应数组标记大于0就消除，并且把标记的数组标记为0
+                        vis[i][j] = 0;
+                        imgdata[i][j] =9;
+                        divy = document.getElementsByTagName("div");
+                       _divnum = i * 7 + 1 + j;
+                     divy[_divnum].innerHTML = '<img src="' + "" + '">';//消除图片
+                     flag = 1;
+                    }
+                  }
+              }
+              return flag;
+         }
+
+
+
+
+
+
+
+    // without chaining
+    // const circle = new Circle(100, pink);
+    // circle.center();
+    // circle.drag();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    stage.update(); // this is needed to show any changes
+
+}); // end of ready
+
+</script>
+
+<meta name="viewport" content="width=device-width, user-scalable=no" />
+
+</head>
+
+<body>
+<!-- canvas with id="myCanvas" is made by zim Frame -->
+</body>
+</html>

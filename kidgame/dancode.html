@@ -1,0 +1,376 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Squiggle Puzzle Game</title>
+
+<!-- Welcome to ZIM at https://zimjs.com - Code Creativity!                              -->
+<!-- ZIM runs on the HTML Canvas powered by JavaScript and CreateJS https://createjs.com -->
+<!-- Founded by Inventor Dan Zen - http://danzen.com - Canadian New Media Award Winner   -->
+<!-- ZIM is free to use. You can donate to help improve ZIM at https://zimjs.com/donate  -->
+
+<script src="https://zimjs.org/cdn/1.2.1/createjs_min.js"></script>
+<script src="https://zimjs.org/cdn/10.6.0/zim.js"></script>
+<script src="https://zimjs.org/cdn/pizzazz_02.js"></script>
+<script src="https://zimjs.org/cdn/game_2.2.js"></script>
+
+<!-- use zimjs.com/distill for minified individual functions! -->
+
+<script>
+
+// SCALING OPTIONS
+// scaling can have values as follows with full being the default
+// "fit"	sets canvas and stage to dimensions and scales to fit inside window size
+// "outside"	sets canvas and stage to dimensions and scales to fit outside window size
+// "full"	sets stage to window size with no scaling
+// "tagID"	add canvas to HTML tag of ID - set to dimensions if provided - no scaling
+
+var scaling = "fit"; // this will resize to fit inside the screen dimensions
+var width = 1024;
+var height = 768;
+var color = light; // ZIM colors like green, blue, pink, faint, clear, etc.
+var outerColor = dark; // any HTML colors like "violet", "#333", etc. are fine to use
+var assets = ["cupid.png"];
+var path = "assets/";
+
+var frame = new zim.Frame(scaling, width, height, color, outerColor, assets, path);
+frame.on("ready", function() {
+    zog("ready from ZIM Frame"); // logs in console (F12 - choose console)
+
+    var stage = frame.stage;
+    var stageW = frame.width;
+    var stageH = frame.height;
+
+    pizzazz.listIcons();
+
+
+    // see https://zimjs.com/learn.html for video and code tutorials
+    // see https://zimjs.com/docs.html for documentation
+    // see https://zimjs.com/bits.html for 64 Interactive Media techniques
+
+    // put your code here (you can delete this sample code)
+
+
+    var path = new Squiggle({
+        points:5,
+        // controlType:"none",
+        // points:[[5,42,0,0,-20.7,56.1,20.7,-56.1],[86.1,-65.3,0,0,-37.8,21.9,37.8,-21.9],[215.3,-64,0,0,-45.1,-25.6,45.1,25.6],[260.5,76,0,0,20.8,-50,-20.8,50],[172.6,145.7,0,0,33,-3.7,-33,3.7],[80,98,0,0,14.6,35.3,-14.6,-35.3],[87.3,15.1,0,0,-11,14.6,11,-14.6],[148.2,-14.1,0,0,-28,-2.5,28,2.5],[188.4,47,0,0,14.6,-23.1,-14.6,23.1],[149,60.2,0,0,0,0,0,0]],
+        color:red,
+        // length:900,
+        // interactive:false,
+        showControls:false,
+        thickness:1,
+        onTop:false,
+        lockControlType:true,
+        move:false,
+        editPoints:false,
+        // strokeObj:{ignoreScale:true}
+    }).sca(2.5).center();
+
+    var hearts = new Container();
+
+    var blackHeart = pizzazz.makeIcon("heart", black, 3)
+        .addTo(hearts);
+    var redHeart = pizzazz.makeIcon("heart", red, 3)
+        .addTo(hearts).alp(0);
+
+    hearts.centerReg().animate({
+            props:{path:path, orient:false},
+            // drag:true,
+            ease:"linear",
+            time:15000,
+            loop:true,
+            rewind:true,
+            // rewindCall:function () {
+            //     // blackHeart.alp(blackHeart.alpha+.2);
+            //     blackHeart.alpha += .2;
+            // }
+        });
+
+
+
+    // var ship = new Triangle({a:60, b:80, c:80, adjust:-12})
+    //     .rot(90)
+    //     .addTo()
+    //     .animate({
+    //         props:{path:path},
+    //         // drag:true,
+    //         ease:"linear",
+    //         time:10000,
+    //         rewind:true,
+    //         loop:true
+    //     });
+
+    frame.on("keydown", function (e) {
+        // zog(e.keyCode);
+        if (e.keyCode == 82) { // R
+            // zog("yay!")
+            path.recordPoints();
+        } else if (e.keyCode == 80) { // P
+            zog("recording");
+            // var locations = [];
+            // bows.loop(function (bow) {
+            //     locations.push( "[" + bow.x +","+ bow.y +"]" );
+            // });
+            // zog("[" + locations.toString() + "]")
+            var locX = [];
+            var locY = [];
+            bows.loop(function (bow) {
+                locX.push( Math.round(bow.x) );
+                locY.push( Math.round(bow.y) );
+            });
+            zog(locX);
+            zog(locY);
+        }
+    });
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // CUPIDS
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    var bowMaster = new Container(50,60)
+    // new Rectangle(50,50, series(red,green,blue,yellow), dark).pos(0,0,null,true,bowMaster);
+    // new Rectangle(5,10, series(red,green,blue,yellow), dark).center(bowMaster).pos(null, 0);
+    // new Rectangle(50,50).pos(0,0,null,true,bowMaster);
+    // new Rectangle(5,10).center(bowMaster).pos(null, 0);
+    frame.asset("cupid.png").alp(1).sca(.08).clone().rot(-90).centerReg(bowMaster);
+
+
+    var angles = [0, 90, 180, 270];
+
+    // var positions = [
+    //     [null,30,null,true],
+    //     [30,null,null,false],
+    //     [null,30,false,false],
+    //     [30,null,true,false]
+    // ];
+
+    var locX = [189, 60, 316, 964];
+    var locY = [708, 467, 60, 596];
+
+    // var movX = [-300, 0, -200, 0];
+    // var movY = [0, +300, 0, 22];
+
+    var bows = new Container(stageW, stageH).addTo();
+
+    loop(4, function (i) {
+        var bow = bowMaster.clone()
+            .rot(angles[i])
+            .centerReg(bows)
+            .loc(locX[i], locY[i])
+
+            // .pos(positions[i][0], positions[i][1], positions[i][2], positions[i][3])
+            // .mov(movX[i], movY[i]);
+
+        if (i==3) {
+            bow.getChildAt(0).rot(90).sca(-.08,.08);
+        }
+
+        // modulus gives the remainder
+        // if the first number is less than the second number then it equals the first number
+        // 0%2 = 0
+        // 1%2 = 1
+        // 2%2 = 0
+        // 3%2 = 1
+
+        // ternary (3) operator condition?true:false;
+        // like if () {} else {}
+        // var x = (i%2==0)?0:bow.x;
+        // var y = (i%2==0)?bow.y:0;
+        // ...
+        var boundary;
+        if (i%2==0) { // if i is even... 0 or 2
+            boundary = new Boundary(0,bow.y,stageW,0);
+        } else { // else i is odd... 1 or 3
+            boundary = new Boundary(bow.x,0,0,stageH)
+        }
+        bow.drag({onTop:false, all:true, boundary:boundary});
+    });
+
+
+    // var bow2 = bow.clone()
+    //     .rot(-90)
+    //     .centerReg()
+    //     .pos(30,null,true);
+    // bow2.drag({
+    //     all:true,
+    //     boundary:new Boundary(bow2.x,0,0,stageH)
+    // });
+
+    var shootTimes = [1000, 2000, 1000, 4000, 2000, 3000, 4000, 2000];
+    var shootBows = [0, 1, 3, 2, 3, 3, 1, 0];
+    var shootPlace = []; // make this for homework
+
+    // var count = 0;
+    var inter;
+    function startShooting() {
+        inter = interval(series(shootTimes), function (obj) {
+            // zog(obj.count)
+            // zog(count);
+            // count++;
+            // zog( shootBows[obj.count-1] )
+            var num = shootBows[obj.count-1];
+            var bow = bows.getChildAt(num);
+            // bow is a container so loop and set colors of children
+            // bow.loop(function (rect) {
+            //     rect.color = red;
+            // });
+            // timeout(500, function () {
+            //     bow.loop(function (rect) {
+            //         rect.color = black;
+            //     });
+            // });
+
+
+
+            // make rect 10x10 center in the bow and animate stageW
+
+            new Rectangle(3,50,grey) // arrow
+                .centerReg(bow)
+                .animate({
+                    props:{y:-stageW-50},
+                    time:1000,
+                    ease:"linear",
+                    call:function(arrow){
+                        arrow.removeFrom();
+                        zog(obj.count, obj.total)
+                        if (!obj.total) {
+                            zog("ending");
+                            // intro.addTo();
+                        }
+                    }
+                });
+
+        }, shootTimes.length);
+    }
+    startShooting();
+
+
+    // HIT TEST
+        Ticker.add(function () {
+        bows.loop(function (bow) {
+            bow.loop(function(arrow, i) {
+                if (i==0) return; // avoid cupid (like a continue in a for loop)
+                if (hearts.hitTestRect(arrow)) {
+                    arrow.removeFrom();
+                    score.selectedIndex += 1;
+                    // increase score
+                    // make heart more red
+                    redHeart.alpha += 1/shootTimes.length;
+                    // zog(redHeart.alpha)
+                }
+            }, true); // loop backwards because removing arrows
+        });
+    });
+
+    // RESET
+    new Button({
+        corner:[50,0,50,0],
+        backgroundColor:pink,
+        rollBackgroundColor:blue,
+        label:"RESET",
+        wait:"DONE",
+        waitTime:3000,
+        waitBackgroundColor:yellow,
+    })
+        .sca(.8)
+        .pos(30,30,true,true)
+        .tap(function () {
+            inter.clear();
+            startShooting();
+            // inter.count = 0;
+            // inter.pause(false, false, true); // inter is our interval object that shoots arrows
+            // hearts.resetTween();
+            hearts.percentComplete = 0;
+            score.selectedIndex = -1;
+            redHeart.alp(0);
+            stage.update();
+        });
+
+    // var score = new Scorer().pos(30,30,RIGHT,TOP);
+
+    var score = new Indicator({
+        width:180,
+        height:30,
+        num:shootTimes.length,
+        foregroundColor:purple,
+        fill:true
+    }).pos(10,40,RIGHT,TOP);
+    score.selectedIndex = -1;
+
+    var title = new Label({
+        text:"CupeShoot",
+        size:40,
+        font:"impact",
+        color:white,
+        backgroundColor:red,
+        shiftVertical:4
+    }).pos(30,30).ske(10).animate({
+        props:{alpha:.4},
+        wait:2000
+    });
+
+    // var title2 = title.clone().addTo().ske(-10).ble("difference");
+    // title2.background.color = purple
+
+
+    var intro = new Container().addTo();
+    var backing = new Rectangle(stageW, stageH, pink)
+        .addTo(intro)
+        .linearGradient([pink, blue], [0, 1], 0,0, 0,stageH);
+
+    title.clone().sca(3).pos(0,100,CENTER,TOP,intro);
+    new Label({
+        text:"Puzzle squiggle game to
+catch all cupids arrows",
+        // labelWidth:200,
+        lineHeight:55,
+        align:"center",
+        size: 45,
+        color:white,
+        fontOptions:"bold italic"
+    }).center(intro).sha("rgba(0,0,0,.2)", 3, 3, 3);
+
+    new Button({
+        backing:pizzazz.makeIcon("heart", purple, 3),
+        rollBacking:pizzazz.makeIcon("heart", red, 3),
+        label:"GO",
+        color:white
+    })
+        .sca(1.8)
+        .centerReg(intro)
+        // property, start, min, max, minTime, maxTime
+        .wiggle("rotation", 0, 2, 5, 300, 1000)
+        .wiggle("scale", 1.8, .1, .2, 2000, 3000)
+        .pos(0, 140, CENTER, BOTTOM)
+        .tap(function () {
+            intro
+                .cache()
+                .animate({y:-stageH}, 300);
+            stage.update();
+        });
+    intro.removeFrom();
+
+    // intro.cache();
+    // timeout(1000, function () {
+    //     intro.updateCache();
+    // });
+    //
+    // timeout(3000, function () {
+    //     intro.uncache();
+    // });
+
+    stage.update(); // this is needed to show any changes
+
+}); // end of ready
+
+</script>
+
+<meta name="viewport" content="width=device-width, user-scalable=no" />
+
+</head>
+
+<body>
+<!-- canvas with id="myCanvas" is made by zim Frame -->
+</body>
+</html>

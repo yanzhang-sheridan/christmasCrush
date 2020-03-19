@@ -1,0 +1,253 @@
+﻿<html>
+ 2 <head>
+ 3   <meta name="generator"
+ 4   content="HTML Tidy for HTML5 (experimental) for Windows https://github.com/w3c/tidy-html5/tree/c63cc39" />
+ 5   <meta charset="UTF-8" />
+ 6   <title>三消乐</title>
+ 7 <style type="text/css">
+ 8 #box {
+ 9   background-color: #55D88B;
+10   width: 450px;
+11   height: 450px;
+12   position: relative;
+13   margin: 80px 350px;
+14 }
+15 #box div {
+16   float: left;
+17   position: relative;
+18   background-color: #E0DFE4;
+19   border: 2px;
+20   border-radius: 2px;
+21   height: 60px;
+22   width: 60px;
+23   margin-top: 4px;
+24   margin-left: 4px;
+25 }
+26 #img {
+27   position: relative;
+28   float: left;
+29 }
+30 </style>
+31 </head>
+32 <body bgcolor="#868398"  οnlοad="init()">
+33  <script type = "text/javaScript" >
+34 var divy = new Array();
+35 var sum = 0,lastx = 0,lasty = 0,l_rnum = 0,o_dnum = 0,sum = 0,clickedimg = "",
+36 left_x = 0,left_y = 0,up_x = 0,up_y = 0;
+37 var img_lib = new Array("狐狸.png", "猫头鹰.png", "河马.png", "小鸡.png", "熊.png");//图片库
+38 var imgdata = new Array();//存储动物对应的数字
+39 var vis = new Array(); //标记数组
+40 var _clickedimg = new Array();//用来存点击的两张图片
+41 function init() {
+42     //生成界面
+43     for (var i = 0; i < 7; i++) {
+44         imgdata[i] = new Array();
+45         for (var j = 0; j < 7; j++) {
+46             imgdata[i][j] ="";
+47         }
+48     }
+49     for (var i = 0; i < 7; i++) {
+50         vis[i] = new Array();
+51         for (var j = 0; j < 7; j++) {
+52             vis[i][j] = 0;
+53         }
+54     }
+55     var x = document.getElementById("box");
+56     for (var i = 0; i < 7; i++) {
+57         for (var j = 0; j < 7; j++) {
+58             imgdata[i][j] = parseInt(Math.random() * 10) % 5;//随机数，imgdata数组存的是数字
+59             x.innerHTML += "<div οnclick=exchange(this," + i + "," + j + ")><img src=" + img_lib[imgdata[i][j]]+ "></div>";
+60         }
+61     }
+62     //由于开始就是随机生成整盘动物，必须全盘扫描是否有满足可以消除的动物，并消除
+63     scanallimgs();
+64 }
+65 function exchange(obj, x, y) {
+66     var n = 0, m = 0;
+67     if (sum == 0) {//sum用来计算第几次点击
+68         lastx = x;//把第一次点击的照片存起来，方便后面的画图，不然找不到上一次点击的图片是什么
+69         lasty = y;
+70     }
+71     _clickedimg[sum] =imgdata[x][y]; //把交换的图片存起来
+72     sum++;
+73     if (sum >= 2 && lastx == x && lasty == y) sum = 1; //处理连续点击一样的图片
+74     if (sum == 2) {
+75         if(imgdata[x][y]==imgdata[lastx][lasty]){
+76              alert("它们长一样，待在原来地方就好！！");
+77         }
+78         else if (lastx == x || lasty == y) {
+79             if (Math.abs(lasty - y) == 1 || Math.abs(lastx - x) == 1) {
+80                 imgdata[x][y] = _clickedimg[0];//交换图片
+81                 imgdata[lastx][lasty] = _clickedimg[1];
+82                 divy = document.getElementsByTagName("div");
+83                 obj.innerHTML = '<img src="' + img_lib[imgdata[x][y]] + '">';
+84                 divy[lastx * 7 + lasty + 1].innerHTML = '<img src="' + img_lib[imgdata[lastx][lasty]] + '">';
+85                 n = scan(x, y);         //对两张图片分别扫描是否能够消除
+86                 m = scan(lastx, lasty);
+87                 if (n == 1 || m == 1) {   //只要其中一个可以消除，就满足交换
+88                     sum = 0;
+89                     _clickedimg[0] = _clickedimg[1] = 0;
+90                     removeimg();           //消除图片
+91                     alert("消除成功！！！新的动物马上赶来！！");
+92                     addimg();              //添加图片
+93                     scanallimgs();         //扫描随机添加上来的图片是否可以消除
+94                 } else {
+95                     //两张图片都不满足交换，就还原位置
+96                     imgdata[x][y] = _clickedimg[1];
+97                     imgdata[lastx][lasty] = _clickedimg[0];
+98                     _clickedimg[0] = _clickedimg[1] = 0;
+99                     divy = document.getElementsByTagName("div");
+100                     obj.innerHTML = '<img src="' + img_lib[imgdata[x][y]] + '">';
+101                     divy[lastx * 7 + lasty + 1].innerHTML = '<img src="' + img_lib[imgdata[lastx][lasty]] + '">';
+102                     sum = 0;
+103                     alert("OMG！它们不能消除！交换失败！");
+104                     l_rnum = 0;
+105                     o_dnum = 0;
+106                 }
+107
+108             } else {
+109                 alert("这两只不相邻！！！！！！"); //在同行或者同列不相邻
+110                 sum = 0;
+111             }
+112         } else {
+113             alert("这两只不相邻！！！！！！"); //不在同行也不在同列相邻
+114             sum = 0;
+115         }
+116     }
+117 }
+118
+119 //扫描，以当前的点击的这个图片为中心，向左向右，向上向下
+120 function scan(x, y) {
+121     clickedimg = img_lib[imgdata[x][y]];
+122     var scan_lr = 1,scan_ud = 1;
+123     left_x = x;
+124     left_y = y;
+125     up_x = x;
+126     up_y = y;
+127     //如果该动物的左边与它自己相同，并且对应的标记数组大于0，就不继续扫描（因为代表已经扫过了一这行）
+128     if (y != 0 && img_lib[imgdata[x][y-1]] == clickedimg && vis[x][y - 1] > 0) {
+129         scan_lr = 0;
+130     }
+131     //如果该动物的上边与它自己相同，并且对应的标记数组大于0，就不继续扫描（因为代表已经扫过了一这列）
+132     if (x != 0 && img_lib[imgdata[x-1][y]] == clickedimg && vis[x - 1][y] > 0) {
+133         scan_od = 0;
+134     }
+135     if (scan_lr == 1) {
+136         for (var a = 0;; a++) {
+137             if (y - a < 0 || img_lib[imgdata[x][y-a]] != clickedimg) {
+138                 break;
+139             } else if (img_lib[imgdata[x][y-a]] == clickedimg) { //向左扫描
+140                 vis[x][y - a]++;
+141                 l_rnum++;
+142                 if (a != 0) left_y--;//记下与当前动物相同的最左边的动物，横向重置标记数组的时候是用循环从最左边开始
+143              }
+144         }
+145         for (var a = 1;; a++) {
+146             if (y + a > 6 || img_lib[imgdata[x][y+a]] != clickedimg) break;
+147             else if (img_lib[imgdata[x][y+a]] == clickedimg) { //向右扫描
+148                 vis[x][y + a]++;
+149                 l_rnum++;
+150             }
+151         }
+152
+153         //向左与向右的相同动物加起来不超过三个，即横向不能消除，
+154         if (l_rnum < 3) {
+155             for (var i = 0; i < l_rnum; i++) {
+156                 vis[left_x][left_y + i] = vis[left_x][left_y + i] - 1;
+157             }
+158                  l_rnum = 0;
+159         }
+160     }
+161     if (scan_ud == 1) {
+162         for (var b = 0;; b++) {
+163             if (x - b < 0 || img_lib[imgdata[x-b][y]] != clickedimg) {
+164                 break;
+165             }
+166             else if (img_lib[imgdata[x-b][y]] == clickedimg) { //向上扫描
+167                 vis[x - b][y]++;
+168                 o_dnum++;
+169                 if (b != 0) up_x--;//记下与当前动物相同的最上边的动物，纵向重置标记数组的时候是用循环从最上边开始
+170             }
+171
+172         }
+173         for (var b = 1;; b++) {
+174             if (x + b > 6 || img_lib[imgdata[x+b][y]] != clickedimg) break;
+175             else if (img_lib[imgdata[x+b][y]] == clickedimg) { //向下扫描
+176                 vis[x + b][y]++;
+177                 o_dnum++;
+178             }
+179         }
+180         //向下与向上的相同动物加起来不超过三个，即纵向不能消除，就要把标记数组减一，而不是设置为0，因为不能保证横向不能消除，为了保存那个共享的动物。
+181         if (o_dnum < 3) {
+182             for (var j = 0; j < o_dnum; j++) {
+183                 vis[up_x + j][up_y] = vis[up_x + j][up_y] - 1;
+184             }
+185             o_dnum = 0;
+186         }
+187     }
+188     if (l_rnum >= 3 || o_dnum >= 3) {   //有一行或者有一列满足消除，即相同的动物大于等于3，返回1，表示可以交换
+189         l_rnum = 0;
+190         o_dnum = 0;
+191         return 1;
+192     } else {
+193         l_rnum = 0;
+194         o_dnum = 0;
+195         return 0;
+196     }
+197 }
+198
+199 //添加图片
+200 function addimg() {
+201     for (var i = 0; i < 7; i++) {
+202         for (var j = 0; j < 7; j++) {
+203             if (imgdata[i][j] == 9) {
+204                 imgdata[i][j] = parseInt(Math.random() * 10) % 5;  //随机添加
+205                 divy = document.getElementsByTagName("div");
+206                 _divnum = i * 7 + 1 + j;
+207                 divy[_divnum].innerHTML = '<img src="' +img_lib[imgdata[i][j]] + '">';
+208             }
+209         }
+210     }
+211 }
+212
+213 //消除图片
+214 function removeimg() {
+215     var flag = 0;
+216     for (var i = 0; i < 7; i++) {
+217         for (var j = 0; j < 7; j++) {
+218             if (vis[i][j] > 0) {         //对应数组标记大于0就消除，并且把标记的数组标记为0
+219                 vis[i][j] = 0;
+220                 imgdata[i][j] =9;
+221                 divy = document.getElementsByTagName("div");
+222                 _divnum = i * 7 + 1 + j;
+223                 divy[_divnum].innerHTML = '<img src="' + "" + '">';//消除图片
+224                 flag = 1;
+225             }
+226         }
+227     }
+228     return flag;
+229 }
+230
+231 //全盘扫描动物，整盘标记完再扫描，不然有些先删除了，后面扫描就会出问题
+232 function scanallimgs() {
+233     var c = 0,
+234     s = 1;
+235     while (s != 0) {  //s!=0表示上一个整盘动物与当前的整盘动物一样，即没有动物可以消除,s由removeimg()返回
+236         for (var i = 0; i < 7; i++) {
+237             for (var j = 0; j < 7; j++) {
+238                 scan(i, j);
+239             }
+240         }
+241         s = removeimg();
+242         addimg();
+243     }
+244 }
+245 </script>
+246 <div id="box" >
+247 </div>
+248 </body>
+249 </html>
+View Code
+
+
+http://zimjs.com/docs.php?view=66.5&title=Tile&line=22099   ytiles

@@ -1,0 +1,295 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>ZIM - Code Creativity</title>
+
+<!-- Welcome to ZIM at https://zimjs.com - Code Creativity!                              -->
+<!-- ZIM runs on the HTML Canvas powered by JavaScript and CreateJS https://createjs.com -->
+<!-- Founded by Inventor Dan Zen - http://danzen.com - Canadian New Media Award Winner   -->
+<!-- ZIM is free to use. You can donate to help improve ZIM at https://zimjs.com/donate  -->
+
+<script src="https://zimjs.org/cdn/1.2.3/createjs_min.js"></script>
+<script src="https://zimjs.org/cdn/10.7.0/zim.js"></script>
+<!-- use zimjs.com/distill for minified individual functions! -->
+
+<script>
+
+// SCALING OPTIONS
+// scaling can have values as follows with full being the default
+// "fit"	sets canvas and stage to dimensions and scales to fit inside window size
+// "outside"	sets canvas and stage to dimensions and scales to fit outside window size
+// "full"	sets stage to window size with no scaling
+// "tagID"	add canvas to HTML tag of ID - set to dimensions if provided - no scaling
+
+const scaling = "fit"; // this will resize to fit inside the screen dimensions
+const width = 1024;
+const height = 768;
+const color = "#24304D"; // ZIM colors like green, blue, pink, faint, clear, etc.
+const outerColor = dark; // any HTML colors like "violet", "#333", etc. are fine to use
+
+var assets = ["background.png", "santa.png", "elf.png","snowman.png","bear.png","Group67.png","Group68.png","Group69.png","WWYAMC.mp3","kick.mp3","snare.mp3","crash.mp3"];
+var path = "assets/";
+
+
+const frame = new Frame(scaling, width, height, color, outerColor,assets, path);
+frame.on("ready", () => { // ES6 Arrow Function - like function(){}
+    zog("ready from ZIM Frame"); // logs in console (F12 - choose console)
+
+    const stage = frame.stage;
+    let stageW = frame.width;
+    let stageH = frame.height;
+
+    //STARBACK ---------------------------------------
+
+    // var starsFront = new Shape (50,50).rot(54).centerReg();
+    // starsFront.graphics.f(yellow).dp(50,25,100,5,.5);  //drawPolyStar(x,y,radius,sides,pointSize,angle)
+    //
+    // var starsBack = new Container(stageW*1.3,stageH*1.3)
+    //    .center()
+    //    //.animate({x:-stageW*1.3},5000);
+    //
+    // loop(50,function(){
+    //     starsFront.clone().sca(.2).alp(.2)
+    //     .loc(rand(starsBack.width),rand(starsBack.height),starsBack)
+    // });
+    //
+    // new Scroller(starsBack);
+
+    //ASSETS READY -----------------------------------
+    var WWYAMC = asset("WWYAMC.mp3");
+
+    var backGround = (asset("background.png")).center()
+                    .tap(function () {
+                    WWYAMC.play();
+                    });
+    var snowman = frame.asset("snowman.png").alp(1).sca(.8).center().mov(10,290);
+    var elf = frame.asset("elf.png").alp(1).sca(.7).center().mov(-300,290);
+    var polarbear = frame.asset("bear.png").alp(1).sca(.8).center().mov(300,290);
+
+    var santa = frame.asset("santa.png").alp(1).center().mov(0,-280).rot(5);
+
+    var gift1 = (asset("Group67.png"));
+    var gift2 = (asset("Group68.png"));
+    var gift3 = (asset("Group69.png"));
+
+    var kick = asset("kick.mp3");
+    var snare = asset("snare.mp3");
+    var crash = asset("crash.mp3");
+
+    //GAME READY -----------------------------------
+
+
+    santa.wiggle("x",santa.x, 200, 400, 1000, 3000)
+         .wiggle("y",santa.y, 20, 80, 2000, 3000);
+
+    var gift1Series = series(null,gift1,null,null,null, null, null, gift1,null,null,gift1,null,null,gift1,gift1,null,gift1,null, null, );
+    var gift2Series = series( gift2,null,null,gift2,null,gift2,gift2,null,gift2,null, null, gift2,gift2,);
+    var gift3Series = series(null,null,gift3,null,null,null, null, gift3,null,gift3,null,null,gift3,null,null,null,gift3,null, gift3,null, gift3,);
+
+       var gift1Parts = new Tile(gift1Series,1,19,30,50)
+            .center()
+            .mov(0,-1000)
+            .drag();
+      gift1Parts.wiggle("x",gift1Parts.x, 10, 30, 0,3000);
+
+
+       var gift2Parts = new Tile(gift2Series,1,13,20,50)
+            .center()
+            .mov(300,-1000)
+            .drag();
+      gift2Parts.wiggle("x",gift2Parts.x, 10, 20, 0, 3000);
+
+
+       var gift3Parts = new Tile(gift3Series,1,21,30,50)
+            .center()
+            .mov(-300,-1000)
+            .drag();
+     gift3Parts.wiggle("x",gift3Parts.x, 10, 20, 0, 3000);
+
+
+            Ticker.add(function(){
+                   gift1Parts.y++;
+                   gift2Parts.y++;
+                   gift3Parts.y++;
+                   });
+
+
+         var count = 0;
+         frame.on("keydown", function(e){
+                       if (e.keyCode == 37){ //key left
+                           crash.play();
+                           gift1Parts.loop(function(gift1){
+                               if(gift1.type=="Bitmap" && snowman.hitTestBounds(gift1)){
+                                   gift1.removeFrom();
+                                   count +=1000;
+                                   scoreLabel.text = count
+                                   zog(count);
+                                   if(count >= 10000){
+                                       endPane.show();
+                                   }
+                               };
+                           },true);
+                       }
+                   });
+
+          frame.on("keydown", function(e){
+                       if (e.keyCode == 40){
+                           kick.play();
+                           gift2Parts.loop(function(gift2){
+                               if(gift2.type=="Bitmap" && polarbear.hitTestBounds(gift2)){
+                                   gift2.removeFrom();
+                                   count +=1000;
+                                   scoreLabel.text = count
+                                   zog(count);
+                                   if(count >= 10000){
+                                       endPane.show();
+                                   }
+                               };
+                           },true);
+                       }
+                   });
+
+
+          frame.on("keydown", function(e){
+                       if (e.keyCode == 39){ //key right
+                           snare.play();
+
+                           gift3Parts.loop(function(gift3){
+                               if(gift3.type=="Bitmap" && elf.hitTestBounds(gift3)){
+                                   gift3.removeFrom();
+                                   count += 1000;
+                                   zog(count);
+                                   scoreLabel.text = count
+                                   if(count >= 10000){
+                                       endPane.show();
+                                   }
+                               };
+                           },true);
+                       }
+                   });
+
+
+
+          //END FUNCTION ----------------------------------------
+          var endPane = new Pane ({
+                        width:600,
+                        backgroundColor:"white",
+                        close:true
+          });
+          new Button({
+              label:"Next level!",
+              width:350,
+              height:110,
+              font:"roboto",
+              backgroundColor:"#95201E",
+              rollBackgroundColor:"#F4EB1F"
+          })
+              .sca(.5)
+              .center(endPane)
+              .mov(350,300)
+              .tap(function () {
+                  zgo("level2.html");
+                  // inter.clear();
+                  stage.update();
+              });
+
+
+
+          //SCORE Label
+          scoreLabel = new Label({
+          			text:0,
+          			color:grey,
+          			size:40,
+          			align:"right",
+          		}).center().pos(80,30,true);
+
+                new Button({
+                    label:"Restart",
+                    width:350,
+                    height:110,
+                    font:"roboto",
+                    backgroundColor:"#95201E",
+                    rollBackgroundColor:"#F4EB1F"
+                })
+                    .sca(.5)
+                    .center()
+                    .mov(350,300)
+                    .tap(function () {
+                        zgo("lvl1.html");
+                        // inter.clear();
+                        stage.update();
+                    });
+
+                //INTRO --------------------------------------------------------------------
+                var title = new Label({
+                    text:"Whiplash Christmas",
+                    size:30,
+                    font:"impact",
+                    color:white,
+                    backgroundColor:"red",
+                    shiftVertical:4
+                }).pos(0,20,CENTER,TOP).ske(10);
+                // .animate({
+                //     props:{alpha:.4},
+                //     wait:2000
+                // });
+                stage.update();
+                zog("Title ready");
+
+                var intro = new Container().addTo();
+                var backing = new Rectangle(stageW, stageH, pink)
+                    .addTo(intro)
+                    .linearGradient([red, green], [0, 1], 0,0,0, stageH);
+                title.clone().sca(3).center(intro).mov(100,-200)
+                    .pos(0,100,CENTER,TOP,intro);
+                new Label({
+                    text:"Finish the game to \n light up the Christmas tree",
+                    // labelWidth:200,
+                    lineHeight:55,
+                    align:"center",
+                    size:45,
+                    color:white,
+                    // fontOptions:""
+                }).center(intro).sha("rgba(0,0,0,.2)",3,3,0);
+
+                new Button({
+                    // backing:pizzazz.makeIcon("heart", purple, 3),
+                    // rollBacking:pizzazz.makeIcon("heart", red, 3),
+                    label:"start",
+                    color:white,
+                    rollColor:"white",
+                    backgroundColor:"green",
+                    shadowColor:"yellow",
+                    rollBackgroundColor:"red"
+                })
+                    .sca(1)
+                    .centerReg(intro)
+                    // property, start, min, max, minTime, maxTime
+                    .wiggle("rotation",0,2,5,300,1000)
+                    .wiggle("scale",1,.1,.2,2000,3000)
+                    .pos(0,180,CENTER,BOTTOM)
+                    .tap(function(){
+                        intro
+                            .cache()
+                            .animate({y:-stageH},1300);
+                            WWYAMC.play();
+                        stage.update();
+
+                    });
+                //INTRO END-----------------------------------------------------------------
+
+    stage.update(); // this is needed to show any changes
+
+}); // end of ready
+
+</script>
+
+<meta name="viewport" content="width=device-width, user-scalable=no" />
+
+</head>
+
+<body>
+<!-- canvas with id="myCanvas" is made by zim Frame -->
+</body>
+</html>

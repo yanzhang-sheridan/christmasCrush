@@ -1,0 +1,396 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Coin Crash</title>
+
+
+
+<script src="https://zimjs.org/cdn/1.2.1/createjs_min.js"></script>
+<script src="https://zimjs.org/cdn/10.6.0/zim.js"></script>
+<script src="https://zimjs.org/cdn/pizzazz_02.js"></script>
+<script src="https://zimjs.org/cdn/game_2.2.js"></script>
+
+<!-- use zimjs.com/distill for minified individual functions! -->
+
+<script>
+
+
+const scaling = "fit"; // this will resize to fit inside the screen dimensions
+const width = 1024;
+const height = 768;
+const color = light; // ZIM colors like green, blue, pink, faint, clear, etc.
+const outerColor = dark; // any HTML colors like "violet", "#333", etc. are fine to use
+
+// var assets = ["cupid.png"];
+// var path = "assets/";
+//
+// var frame = new zim.Frame(scaling, width, height, color, outerColor, assets, path);
+const frame = new Frame(scaling, width, height, color, outerColor);
+
+
+
+frame.on("ready", () => { // ES6 Arrow Function - like function(){}
+    zog("ready from tile"); // logs in console (F12 - choose console)
+
+    var stage = frame.stage;
+    var stageW = frame.width;
+    var stageH = frame.height;
+
+    pizzazz.listIcons();
+
+    var targetHolder = new Container().centerReg();
+
+    var img1 = new Rectangle(20, 20, green, white, 2);
+    var img2 = new Circle(10, blue, white, 2);
+    var img3 = new Triangle(20,20,20, orange, white, 2);
+
+    // var hearts = new Container();
+     var img4 = pizzazz.makeIcon("heart", red, 3).sca(.2);
+
+
+    // make Tile - note, assets will be cloned unless set clone:false in Tile
+    var figureTiles = new Tile({
+        obj:[img1,img2,img3,img4],
+        width:stageW*.8,
+        height:stageH*.8,
+        cols:8,
+        rows:8,
+        spacingH:40,
+        spacingV:40,
+        squeezeH:false,
+        squeezeV:false, // try setting to true - did not bother with example interface
+        align:"center",
+        valign:"center",
+        // clone:false
+        // colSize:350, // ignored if width set
+    }).addTo().center();
+
+    var timer = new Timer({
+         time:60,
+         borderColor:dark,
+         isometric:"left" // isometric for left side of board
+    }).loc(stageW,stageH);
+
+    new Button({
+        corner:[50,0,50,0],
+        backgroundColor:pink,
+        rollBackgroundColor:blue,
+        label:"RESET",
+        wait:"DONE",
+        waitTime:3000,
+        waitBackgroundColor:yellow,
+    })
+        .sca(.5)
+        .pos(10,10,true,true)
+        .tap(function () {
+            inter.clear();
+            gameStart();
+            // inter.count = 0;
+            // inter.pause(false, false, true); // inter is our interval object that shoots arrows
+            // // hearts.resetTween();
+            // hearts.percentComplete = 0;
+            //score.selectedIndex = -1;
+            // redHeart.alp(0);
+            // stage.update();
+        });
+
+    // var score = new Scorer().pos(30,30,RIGHT,TOP);
+
+        var score = new Label({
+            text:"scores",
+            size:20,
+            font:"impact",
+            color:white,
+            backgroundColor:red,
+            shiftVertical:4
+        }).pos(5,5,RIGHT,TOP).ske(10);
+
+        // .animate({
+        // //     props:{alpha:.4},
+        // //     wait:2000
+        // });
+
+        //
+        // var score = new Indicator({
+        //     width:180,
+        //     height:30,
+        //     // num:shootTimes.length,
+        //     foregroundColor:purple,
+        //     fill:true
+        // }).pos(10,40,RIGHT,TOP);
+        // score.selectedIndex = -1;
+
+        var title = new Label({
+            text:"Smash me!",
+            size:20,
+            font:"impact",
+            color:white,
+            backgroundColor:red,
+            shiftVertical:4
+        }).pos(5,5).ske(10).animate({
+            props:{alpha:.4},
+            wait:2000
+        });
+
+
+
+        // var rowsArray = figures.items2D;
+        // var colsArray = figures.items2DCols;
+        // var itemRowCol=[];
+
+        var figureNum = 0;
+        var figureRow = 0;
+        var figureCol = 0;
+        var figureTilesRows = figureTiles.rows;
+        var figureTilesCols = figureTiles.cols;
+        var figureArray = [];
+
+        for (var i=0; i<figureTiles.items.length; i++) {
+
+            zog(figureTiles.items[i]);
+            // zog(figureTiles.items[i].tilenum);
+            figureRow = Math.floor(i/figureTilesCols); //row
+    		figureCol= i % figureTilesCols;
+            zog(figureRow);
+            zog(figureCol);
+            var itemArray=[];
+            itemArray.push(i);
+            itemArray.push(figureRow);
+            itemArray.push(figureCol);
+            figureArray.push(itemArray);
+        }
+
+           zog(figureArray);
+
+///////////////////// GAME starsFront
+
+           // Create a random level
+function createPlayTile() {
+    var done = false;
+
+    // Keep generating  tile to play until it is correct
+    while (!done) {
+
+        // // Create a level with random tiles
+        // for (var i=0; i<figureTiles.cols; i++) {
+        //     for (var j=0; j<figureTiles.rows; j++) {
+        //         level.tiles[i][j].type = getRandomTile();
+        //     }
+        // }
+
+        // Resolve the clusters
+        resolveGaps();
+
+        // Check if there are valid moves
+        findMoves();
+
+        // Done when there is a valid move
+        if (moves.length > 0) {
+            done = true;
+        }
+    }
+}
+
+// Remove gaps and insert tiles
+  function resolveGaps() {
+      // Check for clusters
+      findGaps();
+
+      // While there are gaps left
+      while (gaps.length > 0) {
+
+          // Remove clusters
+          removeGaps();
+
+          // Shift tiles
+          shiftTiles();
+
+          // Check if there are clusters left
+          findGaps();
+      }
+  }
+
+  // Array of gaps
+    var gaps = [];  // { column, row, length, horizontal }
+
+     // Find clusters in the level
+    function findGaps() {
+         // Reset gaps;
+         gaps = [];
+
+         // Find horizontal clusters
+         for (var j=0; j<figureTiles.rows.length; j++) {
+             // Start with a single tile,  of 1
+             var matchSum= 1;
+             for (var i=0; i<figureTiles.columns.length; i++) {
+                 var checkGap = false;
+
+                 if (i == figureTiles.cols.length-1) {
+                     // Last tile
+                     checkGap = true;
+                 } else {
+                     // Check the type of the next tile
+                     if (figureTiles.items[i][j].type == figureTiles.items[i+1][j].type &&
+                        figureTiles.items[i][j].type != -1) {
+                         // Same type as the previous, increase matchlength
+                         matchSum += 1;
+                     } else {
+                         // Different type
+                         checkGap = true;
+                     }
+                 }
+
+                 // Check if there was a cluster
+                 if (checkGap) {
+                     if (matchlength >= 3) {
+                         // Found a horizontal gap
+                        gaps.push({ column: i+1-matchlength, row:j,
+                                         length: matchlength, horizontal: true });
+                     }
+
+                     matchlength = 1;
+                 }
+             }
+         }
+
+         // Find vertical clusters
+         for (var i=0; i<level.columns; i++) {
+             // Start with a single tile, cluster of 1
+             var matchlength = 1;
+             for (var j=0; j<level.rows; j++) {
+                 var checkcluster = false;
+
+                 if (j == level.rows-1) {
+                     // Last tile
+                     checkcluster = true;
+                 } else {
+                     // Check the type of the next tile
+                     if (level.tiles[i][j].type == level.tiles[i][j+1].type &&
+                         level.tiles[i][j].type != -1) {
+                         // Same type as the previous tile, increase matchlength
+                         matchlength += 1;
+                     } else {
+                         // Different type
+                         checkcluster = true;
+                     }
+                 }
+
+                 // Check if there was a cluster
+                 if (checkcluster) {
+                     if (matchlength >= 3) {
+                         // Found a vertical cluster
+                         clusters.push({ column: i, row:j+1-matchlength,
+                                         length: matchlength, horizontal: false });
+                     }
+
+                     matchlength = 1;
+                 }
+             }
+         }
+
+
+
+
+
+
+
+        figureTiles.loop(function(item, i){
+
+            //scanFigure()
+             var imgType=item.Type;
+
+             var rowNum = figureArray[i][1];
+             var colNum = figureArray[i][2];
+             var rowItemsArray = figureTiles.items2D[rowNum];
+             var colItemsArray = figureTiles.items2DCols[colNum];
+
+             var sameArray = [];
+
+             var sameTotal = scanRows(rowItemsArray, colNum);
+             scanCols(colItemsArray, rowNum);
+
+         },true)
+
+
+            scanRows(scanArray,targetIndex) {
+
+                var sameCount = 0
+
+                scanArray.loop(item,i){
+
+                 if (i <= targetIndex) {
+                     if (item.type = imgType) {
+                        sameCount++;
+                    } else {
+                        sameCount=0;
+                    }
+                } else {
+
+                    if (colItemsArray[icol].type = imgType) {
+                       sameCount++;
+                   }
+
+
+
+
+                }
+
+
+
+
+
+
+
+
+                 }
+
+
+
+
+
+
+
+
+
+             }
+
+
+
+
+            zog(rowNum);
+            zog(colNum);
+
+            zog(rowItemsArray);
+            zog(colItemsArray);
+
+
+        } ,true);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        stage.update();
+    });
+
+   </script>
+   <meta name="viewport" content="width=device-width, user-scalable=no" />
+   </head>
+   <body></body>
+   </html>

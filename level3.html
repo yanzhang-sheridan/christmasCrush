@@ -1,0 +1,317 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>ZIM - Code Creativity</title>
+
+<!-- Welcome to ZIM at https://zimjs.com - Code Creativity!                              -->
+<!-- ZIM runs on the HTML Canvas powered by JavaScript and CreateJS https://createjs.com -->
+<!-- Founded by Inventor Dan Zen - http://danzen.com - Canadian New Media Award Winner   -->
+<!-- ZIM is free to use. You can donate to help improve ZIM at https://zimjs.com/donate  -->
+
+<script src="https://zimjs.org/cdn/1.2.3/createjs_min.js"></script>
+<script src="https://zimjs.org/cdn/10.7.0/zim.js"></script>
+<script src=" https://zimjs.com/cdn/game_2.2.js"></script>
+<!-- use zimjs.com/distill for minified individual functions! -->
+
+<script>
+
+// SCALING OPTIONS
+// scaling can have values as follows with full being the default
+// "fit"	sets canvas and stage to dimensions and scales to fit inside window size
+// "outside"	sets canvas and stage to dimensions and scales to fit outside window size
+// "full"	sets stage to window size with no scaling
+// "tagID"	add canvas to HTML tag of ID - set to dimensions if provided - no scaling
+
+const scaling = "fit"; // this will resize to fit inside the screen dimensions
+const width = 1024;
+const height = 768;
+const color = "#24304D"; // ZIM colors like green, blue, pink, faint, clear, etc.
+const outerColor = dark; // any HTML colors like "violet", "#333", etc. are fine to use
+
+var assets = ["tBackground.png", "christmastree.png", "bell1.png","bell2.png","cake.png","cup.png","stick.png","teddybear.png","jingleBell.mp3","kick.mp3","snare.mp3","crash.mp3","03.png","label.png","bigBear.png","bigBell.png","bigCup.png"];
+var path = "assets/";
+
+
+const frame = new Frame(scaling, width, height, color, outerColor,assets, path);
+frame.on("ready", () => { // ES6 Arrow Function - like function(){}
+    zog("ready from ZIM Frame"); // logs in console (F12 - choose console)
+
+    const stage = frame.stage;
+    let stageW = frame.width;
+    let stageH = frame.height;
+
+    //STARBACK ---------------------------------------
+
+    // var starsFront = new Shape (50,50).rot(54).centerReg();
+    // starsFront.graphics.f(yellow).dp(50,25,100,5,.5);  //drawPolyStar(x,y,radius,sides,pointSize,angle)
+    //
+    // var starsBack = new Container(stageW*1.3,stageH*1.3)
+    //    .center()
+    //    //.animate({x:-stageW*1.3},5000);
+    //
+    // loop(50,function(){
+    //     starsFront.clone().sca(.2).alp(.2)
+    //     .loc(rand(starsBack.width),rand(starsBack.height),starsBack)
+    // });
+    //
+    // new Scroller(starsBack);
+
+    //ASSETS READY -----------------------------------
+    var backGround = (asset("tBackground.png")).center();
+    var christmasTree = (asset("christmastree.png"))
+                        .center()
+                        .mov(120,60)
+                        .sca(.9);
+
+    var bell1 = (asset("bell1.png"));
+    var bell2 = (asset("bell2.png"));
+    var teddybear = (asset("teddybear.png"));
+    var cup = (asset("cup.png"));
+    var jingleBell = asset("jingleBell.mp3");
+    var bigbear = (asset("bigBear.png")).center().mov(-400,-200);
+    var bigcup = (asset("bigCup.png")).sca(.9).center().mov(-400,180);
+    var bigbell = asset("bigBell.png").sca(.9).center().mov(-400,0);
+    var kick = asset("kick.mp3");
+    var snare = asset("snare.mp3");
+    var crash = asset("crash.mp3");
+    // var bar = new Rectangle (80,450).center().mov(-320,0);
+    var label = asset("label.png").centerReg()
+                .pos(-80,20,CENTER)
+                .animate({
+                        props:{scale:2},
+                        from:true,
+                        ease:"backOut",
+                        time:1000
+                    })
+                .tap(function () {
+                jingleBell.play();
+                });
+
+    //INSTRUCTIONS----------------------------------------
+    // var instructions = new Label({
+    //     text:"Decorate the Christmas Tree!",
+    //     color:white,
+    //     backgroundColor:"#95201E",
+    //     paddingHorizontal:100,
+    //     size:30,
+    //     align:"center"
+    // }).centerReg()
+    // .alp(.8)
+    // .pos(0,30,CENTER)
+    // .animate({
+    //         props:{scale:0},
+    //         from:true,
+    //         ease:"backOut",
+    //         time:1000
+    //     });
+
+    //END FUNCTION ----------------------------------------
+    var endPane = new Pane ({
+                  width:600,
+                  backgroundColor:"white",
+                  close:true,
+                  label:"Christmas Tree Lite!"
+    });
+
+    var againPane = new Pane ({
+                  width:600,
+                  backgroundColor:"white",
+                  close:true,
+                  label:"Better luck."
+    });
+
+    new Button({
+        label:"Restart",
+        width:350,
+        height:110,
+        font:"roboto",
+        backgroundColor:"#95201E",
+        rollBackgroundColor:"#F4EB1F"
+    })
+        .sca(.5)
+        .center()
+        .mov(350,300)
+        .tap(function () {
+            zgo("level3 -v2.html");
+            // inter.clear();
+            stage.update();
+        });
+
+    // var sprite = new Sprite (asset("03.png"),8,3)
+    //               .centerReg()
+    //               .mov(100,-210)
+    //               .run({
+    //               loop:true,
+    //               time:500
+    //               });
+
+    //SCORE Label
+    scoreLabel = new Label({
+    			text:0,
+    			color:white,
+    			size:40,
+    			align:"right",
+    		}).center().pos(80,30,true);
+
+    //DECO PARTS ------------------------------------------
+
+    var cupSeries = series(cup,null,null,null,null,cup,cup,null,cup,cup,null,null,null,null,cup,cup,null,cup,null,cup);
+    var bellSeries = series(bell1,null,null,bell1,null,bell1,bell1,null,bell1,bell1,null,null,bell1,null,bell1,bell1,null,bell1,null,bell1);
+    var bearSeries = series(teddybear,null,teddybear,null,null,null,null,null,teddybear,teddybear,null,teddybear,null,null,null,null,null,teddybear,null,teddybear);  //,cup,bell2
+
+    var cupParts = new Tile(cupSeries, 20, 1, 30)
+        .centerReg()
+        .mov(1000,200);
+
+
+    var bellParts = new Tile(bellSeries, 20, 1, 30)
+        .center()
+        .mov(1000,null);
+
+
+    var bearParts = new Tile(bearSeries, 20, 1, 30)
+        .center()
+        .mov(1000,-200);
+
+
+     cupParts.wiggle({
+          property:"y",
+          baseAmount:cupParts.y,
+          minAmount:2,
+          maxAmount:10
+        });
+
+    bearParts.wiggle({
+         property:"y",
+         baseAmount:bearParts.y,
+         minAmount:2,
+         maxAmount:10
+       });
+
+   bellParts.wiggle({
+        property:"y",
+        baseAmount:bellParts.y,
+        minAmount:2,
+        maxAmount:10
+      });
+
+   //MOVE LEFT
+   Ticker.add(function(){
+          cupParts.x--;
+          bellParts.x--;
+          bearParts.x--;
+          });
+
+   //KEY DOWN
+      var count = 0;
+      frame.on("keydown", function(e){
+          if (e.keyCode == 37){ //key left
+              crash.play();
+              bearParts.loop(function(teddybear){
+                  if(teddybear.type=="Bitmap" && bigbear.hitTestBounds(teddybear)){
+                      teddybear.removeFrom();
+                      new Sprite (asset("03.png"),8,3)
+                                .centerReg()
+                                .loc(bigbear)
+                                .mov(50,100)
+                                .run({
+                                time:500
+                                });
+                      count +=1000;
+                      scoreLabel.text = count
+                      zog(count);
+                      if(count >= 20000){
+                          endPane.show();
+                          var sprite = new Sprite (asset("03.png"),8,3)
+                                        .centerReg()
+                                        .mov(100,-210)
+                                        .run({
+                                        loop:true,
+                                        time:500
+                                        });
+                      }
+                  }
+              },true);
+          }
+      });
+
+      frame.on("keydown", function(e){
+          if (e.keyCode == 40){ //key down
+              kick.play();
+              bellParts.loop(function(bell1){
+                  if(bell1.type=="Bitmap" && bigbell.hitTestBounds(bell1)){
+                      bell1.removeFrom();
+                      new Sprite (asset("03.png"),8,3)
+                                .centerReg()
+                                .loc(bigbell)
+                                .mov(40,100)
+                                .run({
+                                time:500
+                                });
+                      count +=1000;
+                      scoreLabel.text = count;
+                      zog(count);
+                      if(count >= 20000){
+                          endPane.show();
+                          var sprite = new Sprite (asset("03.png"),8,3)
+                                        .centerReg()
+                                        .mov(100,-210)
+                                        .run({
+                                        loop:true,
+                                        time:500
+                                        });
+                      }
+                  };
+              },true);
+          }
+      });
+
+
+      frame.on("keydown", function(e){
+          if (e.keyCode == 39){ //key right
+              snare.play();
+
+              cupParts.loop(function(cup){
+                  if(cup.type=="Bitmap" && bigcup.hitTestBounds(cup)){
+                      cup.removeFrom();
+                      new Sprite (asset("03.png"),8,3)
+                                .centerReg()
+                                .loc(bigcup)
+                                .mov(40,100)
+                                .run({
+                                time:500
+                                });
+                      count += 1000;
+                      zog(count);
+                      scoreLabel.text = count
+                      if(count >= 20000){
+                          endPane.show();
+                          var sprite = new Sprite (asset("03.png"),8,3)
+                                        .centerReg()
+                                        .mov(100,-210)
+                                        .run({
+                                        loop:true,
+                                        time:500
+                                        });
+                      }
+                  };
+              },true);
+          }
+      });
+
+
+    stage.update(); // this is needed to show any changes
+
+}); // end of ready
+
+</script>
+
+<meta name="viewport" content="width=device-width, user-scalable=no" />
+
+</head>
+
+<body>
+<!-- canvas with id="myCanvas" is made by zim Frame -->
+</body>
+</html>

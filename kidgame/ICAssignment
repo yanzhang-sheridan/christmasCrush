@@ -1,0 +1,89 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Coin Crash</title>
+
+
+
+<script src="https://zimjs.org/cdn/1.2.1/createjs_min.js"></script>
+<script src="https://zimjs.org/cdn/10.5.5/zim.js"></script>
+<script src="https://zimjs.org/cdn/pizzazz_02.js"></script>
+<!-- use zimjs.com/distill for minified individual functions! -->
+
+<script>
+
+
+const scaling = "fit"; // this will resize to fit inside the screen dimensions
+const width = 1024;
+const height = 768;
+const color = light; // ZIM colors like green, blue, pink, faint, clear, etc.
+const outerColor = dark; // any HTML colors like "violet", "#333", etc. are fine to use
+
+// var assets = ["cupid.png"];
+// var path = "assets/";
+//
+// var frame = new zim.Frame(scaling, width, height, color, outerColor, assets, path);
+const frame = new Frame(scaling, width, height, color, outerColor);
+
+
+
+frame.on("ready", () => { // ES6 Arrow Function - like function(){}
+    zog("ready from tile"); // logs in console (F12 - choose console)
+
+    var stage = frame.stage;
+    var stageW = frame.width;
+    var stageH = frame.height;
+
+    pizzazz.listIcons();
+
+    var targetHolder = new Container().centerReg();
+
+    var img1 = new Rectangle(20, 40, green, white, 2);
+    var img2 = new Circle(40, red, white, 2);
+    var img4 = new Triangle(40, orange, white, 2);
+
+    var hearts = new Container();
+    var img4 = pizzazz.makeIcon("blue", black, 3);
+
+
+    // make Tile - note, assets will be cloned unless set clone:false in Tile
+    var tile = new Tile({
+        obj:series([img1,img2,img3,img4]),
+        width:stageW*.8;,
+        height:stageH*.8;,
+        // height:stageH*.8,
+        cols:10,
+        rows:10,
+        spacingH:16,
+        spacingV:16,
+        squeezeH:false,
+        squeezeV:false, // try setting to true - did not bother with example interface
+        align:"center",
+        valign:"center",
+        // clone:false
+        // colSize:350, // ignored if width set
+    });
+
+
+
+
+    // without chaining
+    // const circle = new Circle(100, pink);
+    // circle.center();
+    // circle.drag();
+
+    stage.update(); // this is needed to show any changes
+
+}); // end of ready
+
+</script>
+
+<meta name="viewport" content="width=device-width, user-scalable=no" />
+
+</head>
+
+<body>
+<!-- canvas with id="myCanvas" is made by zim Frame -->
+</body>
+</html>
